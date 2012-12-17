@@ -20,6 +20,7 @@ module Rabl
     # Renders the representation based on source, object, scope and locals
     # Rabl::Engine.new("...source...", { :format => "xml" }).render(scope, { :foo => "bar", :object => @user })
     def render(scope, locals, &block)
+      Rails.logger.debug 'Rabl engine is rendering!'
       reset_options!
       @_locals, @_scope = locals, scope
       self.copy_instance_variables_from(@_scope, [:@assigns, :@helpers])
@@ -28,6 +29,8 @@ module Rabl
       @_options[:format] ||= self.request_format
       data = locals[:object].nil? ? self.default_object : locals[:object]
       @_data_object, @_data_name = data_object(data), data_name(data)
+      Rails.logger.debug 'Rabl Source:'
+      Rails.logger.debug @_source
       if @_options[:source_location]
         instance_eval(@_source, @_options[:source_location]) if @_source.present?
       else # without source location
@@ -46,8 +49,10 @@ module Rabl
       options[:root_name] = determine_object_root(@_data_object, @_data_name, options[:root])
 
       if is_object?(data) || !data # object @user
+        Rails.logger.debug "Rabl calls the bulder with an object"
         builder.build(data, options)
       elsif is_collection?(data) # collection @users
+        Rails.logger.debug "Rails maps the data collection"
         data.map { |object| builder.build(object, options) }
       end
     end
@@ -57,6 +62,8 @@ module Rabl
     def to_json(options={})
       include_root = Rabl.configuration.include_json_root
       include_child_root = Rabl.configuration.include_child_root
+      Rails.logger.debug "Rabl calls to_json with these options"
+      Rails.logger.debug options.inspect
       options = options.reverse_merge(:root => include_root, :child_root => include_child_root)
       result = collection_root_name ? { collection_root_name => to_hash(options) } : to_hash(options)
       format_json(result)
@@ -270,10 +277,14 @@ module Rabl
     def cache_results(&block)
       _cache = @_cache if defined?(@_cache)
       cache_key, cache_options = *_cache || nil
+      Rails.logger.debug "The rabl cache key is #{cache_key}"
+      Rails.logger.debug "The template cache is configured" if template_cache_configured?
       if template_cache_configured? && cache_key
         result_cache_key = Array(cache_key) + [@_options[:root_name], @_options[:format]]
+        Rails.logger.debug "The rabl result cache key is #{result_cache_key}"
         fetch_result_from_cache(result_cache_key, cache_options, &block)
       else # skip caching
+        Rails.logger.debug "Didn't try the cache, run the block"
         yield
       end
     end

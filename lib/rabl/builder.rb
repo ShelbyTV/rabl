@@ -28,6 +28,9 @@ module Rabl
     # compile_hash(:root_name => false)
     # compile_hash(:root_name => "user")
     def compile_hash(options={})
+      Rails.logger.debug 'Rabl calls compile_hash with these options:'
+      Rails.logger.debug options.inspect
+
       @_result = {}
       # Extends
       @options[:extends].each do |settings|
@@ -137,10 +140,14 @@ module Rabl
     # Caches the results of the block based on object cache_key
     # cache_results { compile_hash(options) }
     def cache_results(&block)
+      Rails.logger.debug "Rabl builder decides if it should check the cache"
+      Rails.logger.debug "Template caching is configured" if template_cache_configured?
+      Rails.logger.debug "Rabl is configured to cache all output" if Rabl.configuration.cache_all_output
       if template_cache_configured? && Rabl.configuration.cache_all_output && @_object.respond_to?(:cache_key)
         result_cache_key = [@_object, @options[:root_name], @options[:format]]
         fetch_result_from_cache(result_cache_key, &block)
       else # skip cache
+        Rails.logger.debug "Rabl skips the cache and yields to the block"
         yield
       end
     end

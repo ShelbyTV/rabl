@@ -15,6 +15,8 @@ module Rabl
     #
     def fetch(key, cache_options, &block)
       if defined?(Rails)
+        Rails.logger.debug "RABL: Show me your key: #{key}"
+        Rails.logger.debug "RABL: Show me your options: #{cache_options}"
         Rails.cache.fetch(key, cache_options, &block)
       else
         yield
