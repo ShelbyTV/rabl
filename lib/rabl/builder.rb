@@ -28,8 +28,7 @@ module Rabl
     # compile_hash(:root_name => false)
     # compile_hash(:root_name => "user")
     def compile_hash(options={})
-      Rails.logger.debug 'Rabl calls compile_hash with these options:'
-      Rails.logger.debug options.inspect
+      Rails.logger.debug 'Rabl calls compile_hash'
 
       @_result = {}
       # Extends
