@@ -140,7 +140,7 @@ module Rabl
     # cache_results { compile_hash(options) }
     def cache_results(&block)
       Rails.logger.debug "Rabl builder decides if it should check the cache"
-      Rails.logger.debug "Template caching is configured" if template_cache_configured?
+      Rails.logger.debug "Rabl template caching is configured" if template_cache_configured?
       Rails.logger.debug "Rabl is configured to cache all output" if Rabl.configuration.cache_all_output
       if template_cache_configured? && Rabl.configuration.cache_all_output && @_object.respond_to?(:cache_key)
         result_cache_key = [@_object, @options[:root_name], @options[:format]]
