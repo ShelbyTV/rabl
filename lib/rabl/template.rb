@@ -51,7 +51,7 @@ if defined?(ActionView) && defined?(Rails) && Rails.version =~ /^[34]/
         def self.call(template)
           source = template.source
 
-          Rails.logger.debug "Rabl template handler called!"
+          Rails.logger.info "RABL: template handler called!"
 
           %{ ::Rabl::Engine.new(#{source.inspect}).
               render(self, assigns.merge(local_assigns)) }
